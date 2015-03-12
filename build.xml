@@ -1,0 +1,63 @@
+<project name="test-nodyn" default="package" basedir=".">
+  <property file="build.properties"/>
+  <description>Builds the test.jar file - a harness for nodyn and dynjs</description>
+  <property name="src.java" location="src/java/com/miningwolf/"/>
+  <property name="lib.nodyn" location="lib/nodyn-standalone.jar"/>
+
+  <property name="build" location="build/classes"/>
+  <property name="dist" location="target/" />
+  <property name="http.agent" value="'domabo-build'" />
+  <property name="ant.build.javac.source" value="1.8"/>
+  <property name="ant.build.javac.target" value="1.8"/>
+
+  <target name="init">
+    <property file="build.local.properties"/>
+    <tstamp>
+      <format property="DSTAMP"
+              pattern="yyyy-MM-dd"
+              locale="en,UK"/>
+    </tstamp>
+    <mkdir dir="${build}"/>
+
+   </target>
+
+  <target name="test" depends="package" description="Perform unit tests">
+    
+  </target>
+
+  <target name="compile-java" depends="init" description="compile java source">
+    <javac includeantruntime="false" 
+           destdir="${build}" 
+           debug="true">
+      <src path="${src.java}"/>
+      <classpath>
+  <pathelement path="${lib.nodyn}" />
+      </classpath>
+    </javac>
+  </target>
+    
+
+  <target name="copy-js" depends="init">
+    <copy todir="${dist}">
+      <fileset dir="src/js"/>
+    </copy>
+  </target>
+
+  <target name="package" depends="compile-java, copy-js" description="generate the distribution" >
+    
+    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+    <mkdir dir="${dist}/${DSTAMP}" />
+    
+    <jar jarfile="${dist}/${DSTAMP}/test.jar" basedir="${build}" >
+      <zipgroupfileset dir="lib" includes="nodyn-standalone.jar" /> 
+         <manifest>
+                <attribute name="Main-Class" value="com.miningwolf.test"/>
+            </manifest>
+    </jar>
+    <copy file="${dist}/${DSTAMP}/test.jar" tofile="${dist}/test.jar"/>
+  </target>
+
+  <target name="clean" description="clean up" >
+    <delete dir="${dist}"/>
+  </target>
+</project>
